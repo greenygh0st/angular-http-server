@@ -25,14 +25,18 @@ if (argv.ssl || argv.https) {
             rejectUnauthorized: false
         };
         server = https.createServer(options, requestListener);
+        start();
     });
 } else {
     server = http.createServer(requestListener);
+    start();
 }
 
-server.listen(getPort(), function () {
-    return console.log("Listening on " + getPort());
-});
+function start() {
+    server.listen(getPort(), function () {
+        return console.log("Listening on " + getPort());
+    });
+}
 
 
 // HELPERS
@@ -124,6 +128,10 @@ function returnDistFile(displayFileMessages = false) {
 }
 
 function resolveUrl(filename) {
+    // basic santizing to prevent attempts to read files outside of directory set
+    if (filename.includes("..")) {
+        return null;
+    }
     if (filename && argv.path) {
         return path.join(argv.path, filename);
     } else {
